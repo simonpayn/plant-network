@@ -3,9 +3,13 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Plant Pairing Network - Detailed View</title>
+    <title>Enhanced Plant Pairing Network</title>
     <script src="https://d3js.org/d3.v7.min.js"></script>
     <style>
+        * {
+            box-sizing: border-box;
+        }
+        
         body {
             margin: 0;
             padding: 0;
@@ -16,144 +20,151 @@
             overflow: hidden;
         }
         
+        #sidebar {
+            width: 320px;
+            background: white;
+            box-shadow: 2px 0 8px rgba(0,0,0,0.1);
+            overflow-y: auto;
+            display: flex;
+            flex-direction: column;
+        }
+        
         #main-content {
             flex: 1;
             display: flex;
             flex-direction: column;
-            padding: 20px;
             overflow: hidden;
         }
         
-        #sidebar {
-            width: 350px;
+        .controls {
+            padding: 15px;
             background: white;
-            box-shadow: -2px 0 8px rgba(0,0,0,0.1);
-            overflow-y: auto;
-            padding: 20px;
+            border-bottom: 1px solid #e5e7eb;
         }
         
-        #sidebar h3 {
-            margin-top: 0;
-            color: #1f2937;
+        .section {
+            padding: 15px;
+            border-bottom: 1px solid #e5e7eb;
         }
         
-        #sidebar.empty {
+        .section h3 {
+            margin: 0 0 10px 0;
+            font-size: 14px;
+            font-weight: 600;
+            color: #374151;
+        }
+        
+        #search-box {
+            width: 100%;
+            padding: 8px 12px;
+            border: 1px solid #d1d5db;
+            border-radius: 6px;
+            font-size: 14px;
+        }
+        
+        .filter-group {
+            margin-bottom: 15px;
+        }
+        
+        .filter-group label {
+            display: block;
+            font-size: 12px;
+            font-weight: 500;
+            color: #6b7280;
+            margin-bottom: 5px;
+        }
+        
+        .filter-group select {
+            width: 100%;
+            padding: 6px 10px;
+            border: 1px solid #d1d5db;
+            border-radius: 4px;
+            font-size: 13px;
+        }
+        
+        .color-legend {
+            display: flex;
+            flex-wrap: wrap;
+            gap: 8px;
+            margin-top: 10px;
+        }
+        
+        .legend-item {
             display: flex;
             align-items: center;
-            justify-content: center;
-            color: #9ca3af;
-            text-align: center;
-        }
-        
-        .plant-detail {
-            margin-bottom: 20px;
-        }
-        
-        .plant-name {
-            font-size: 18px;
-            font-weight: bold;
-            color: #1f2937;
-            margin-bottom: 8px;
-        }
-        
-        .plant-type {
-            display: inline-block;
-            padding: 4px 8px;
-            border-radius: 4px;
-            font-size: 12px;
-            font-weight: 600;
-            margin-bottom: 12px;
-        }
-        
-        .plant-type.primary {
-            background: #dbeafe;
-            color: #1e40af;
-        }
-        
-        .plant-type.companion {
-            background: #d1fae5;
-            color: #065f46;
-        }
-        
-        .connections-list {
-            margin-top: 16px;
-        }
-        
-        .connection-item {
-            padding: 12px;
-            background: #f9fafb;
-            border-radius: 6px;
-            margin-bottom: 8px;
-            border-left: 3px solid #10b981;
-            cursor: pointer;
-            transition: all 0.2s;
-        }
-        
-        .connection-item:hover {
-            background: #f3f4f6;
-            border-left-color: #059669;
-        }
-        
-        .connection-name {
-            font-weight: 600;
-            color: #1f2937;
-            margin-bottom: 4px;
-        }
-        
-        .connection-meta {
-            font-size: 12px;
-            color: #6b7280;
-        }
-        
-        .ecological-group {
-            display: inline-block;
-            padding: 2px 6px;
-            background: #fef3c7;
-            color: #92400e;
-            border-radius: 3px;
+            gap: 5px;
             font-size: 11px;
-            margin-right: 4px;
+        }
+        
+        .legend-circle {
+            width: 10px;
+            height: 10px;
+            border-radius: 50%;
+            border: 1px solid #fff;
+        }
+        
+        #plant-details {
+            flex: 1;
+            overflow-y: auto;
+        }
+        
+        .detail-section {
+            padding: 12px 15px;
+            border-bottom: 1px solid #e5e7eb;
+        }
+        
+        .detail-section h4 {
+            margin: 0 0 8px 0;
+            font-size: 13px;
+            font-weight: 600;
+            color: #374151;
+        }
+        
+        .detail-section p {
+            margin: 0;
+            font-size: 12px;
+            line-height: 1.5;
+            color: #4b5563;
+        }
+        
+        .detail-label {
+            font-weight: 500;
+            color: #6b7280;
+            font-size: 11px;
+            text-transform: uppercase;
+            margin-bottom: 3px;
+        }
+        
+        .companion-list {
+            list-style: none;
+            padding: 0;
+            margin: 5px 0 0 0;
+        }
+        
+        .companion-list li {
+            padding: 4px 0;
+            font-size: 12px;
+            border-bottom: 1px solid #f3f4f6;
+        }
+        
+        #graph-container {
+            flex: 1;
+            position: relative;
+            overflow: hidden;
         }
         
         #graph {
-            flex: 1;
             background: white;
-            border-radius: 8px;
-            box-shadow: 0 2px 8px rgba(0,0,0,0.1);
-        }
-        
-        .controls {
-            margin-bottom: 15px;
-            padding: 15px;
-            background: white;
-            border-radius: 8px;
-            box-shadow: 0 2px 8px rgba(0,0,0,0.1);
-        }
-        
-        .controls h2 {
-            margin: 0 0 8px 0;
-            font-size: 20px;
-        }
-        
-        .controls p {
-            margin: 0 0 8px 0;
-            color: #6b7280;
-            font-size: 14px;
         }
         
         .node {
             cursor: pointer;
             stroke: #fff;
             stroke-width: 2px;
-            transition: all 0.2s;
         }
         
         .node.primary {
-            fill: #2563eb;
-        }
-        
-        .node.companion {
-            fill: #10b981;
+            stroke-width: 2.5px;
         }
         
         .node.highlighted {
@@ -161,333 +172,746 @@
             stroke-width: 4px;
         }
         
-        .node:hover {
-            stroke: #f59e0b;
-            stroke-width: 3px;
+        .node.dimmed {
+            opacity: 0.2;
         }
         
         .link {
-            stroke: #d1d5db;
-            stroke-opacity: 0.4;
-            stroke-width: 1.5px;
+            stroke: #999;
+            stroke-opacity: 0.2;
+            stroke-width: 1px;
         }
         
         .link.highlighted {
             stroke: #f59e0b;
             stroke-opacity: 0.8;
-            stroke-width: 2.5px;
+            stroke-width: 2px;
+        }
+        
+        .link.dimmed {
+            opacity: 0.05;
         }
         
         text {
-            font-size: 11px;
+            font-size: 9px;
             pointer-events: none;
             text-anchor: middle;
-            fill: #374151;
+            fill: #333;
             font-weight: 500;
         }
         
+        text.primary-label {
+            font-size: 10px;
+            font-weight: 600;
+        }
+        
+        text.dimmed {
+            opacity: 0.2;
+        }
+        
         .stats {
-            margin-top: 8px;
-            padding-top: 8px;
+            margin-top: 10px;
+            padding-top: 10px;
             border-top: 1px solid #e5e7eb;
             color: #6b7280;
+            font-size: 12px;
+        }
+        
+        .timeline {
+            padding: 20px;
+            background: white;
+            border-top: 1px solid #e5e7eb;
+            max-height: 200px;
+            overflow-y: auto;
+        }
+        
+        .timeline h3 {
+            margin: 0 0 15px 0;
+            font-size: 14px;
+            font-weight: 600;
+        }
+        
+        .timeline-bar {
+            position: relative;
+            height: 30px;
+            margin-bottom: 8px;
+            border-radius: 4px;
+            overflow: hidden;
+        }
+        
+        .timeline-label {
+            position: absolute;
+            left: 8px;
+            top: 50%;
+            transform: translateY(-50%);
+            font-size: 11px;
+            font-weight: 500;
+            color: white;
+            text-shadow: 0 1px 2px rgba(0,0,0,0.3);
+            z-index: 1;
+        }
+        
+        .timeline-months {
+            display: flex;
+            margin-bottom: 10px;
+            font-size: 10px;
+            color: #6b7280;
+        }
+        
+        .timeline-month {
+            flex: 1;
+            text-align: center;
+            padding: 4px 0;
+            border-right: 1px solid #e5e7eb;
+        }
+        
+        .timeline-month:last-child {
+            border-right: none;
+        }
+        
+        .empty-state {
+            padding: 40px 20px;
+            text-align: center;
+            color: #9ca3af;
+        }
+        
+        .empty-state p {
+            margin: 0;
             font-size: 13px;
         }
         
-        .filter-group {
-            margin: 12px 0;
-        }
-        
-        .filter-btn {
-            display: inline-block;
-            padding: 6px 12px;
-            margin: 4px 4px 4px 0;
+        #clear-selection {
+            width: 100%;
+            padding: 8px;
             background: #f3f4f6;
             border: 1px solid #d1d5db;
-            border-radius: 6px;
-            font-size: 12px;
+            border-radius: 4px;
             cursor: pointer;
-            transition: all 0.2s;
+            font-size: 13px;
+            margin-top: 10px;
         }
         
-        .filter-btn:hover {
+        #clear-selection:hover {
             background: #e5e7eb;
         }
         
-        .filter-btn.active {
-            background: #2563eb;
-            color: white;
-            border-color: #2563eb;
+        .zoom-controls {
+            position: absolute;
+            top: 15px;
+            right: 15px;
+            background: white;
+            border-radius: 6px;
+            box-shadow: 0 2px 8px rgba(0,0,0,0.1);
+            display: flex;
+            flex-direction: column;
+            gap: 1px;
+        }
+        
+        .zoom-btn {
+            width: 36px;
+            height: 36px;
+            border: none;
+            background: white;
+            cursor: pointer;
+            font-size: 18px;
+            color: #374151;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+        }
+        
+        .zoom-btn:hover {
+            background: #f3f4f6;
+        }
+        
+        .zoom-btn:first-child {
+            border-radius: 6px 6px 0 0;
+        }
+        
+        .zoom-btn:last-child {
+            border-radius: 0 0 6px 6px;
         }
     </style>
 </head>
 <body>
-    <div id="main-content">
-        <div class="controls">
-            <h2>Plant Pairing Network - Detailed View</h2>
-            <p>Click any node to see its connections and ecological details in the sidebar →</p>
-            <div class="filter-group">
-                <strong>Filter by ecological group:</strong><br>
-                <button class="filter-btn active" data-group="all">All Plants</button>
-                <button class="filter-btn" data-group="dry-prairie">Dry Prairie</button>
-                <button class="filter-btn" data-group="moist-meadow">Moist Meadow</button>
-                <button class="filter-btn" data-group="woodland">Woodland</button>
-                <button class="filter-btn" data-group="transitional">Transitional</button>
+    <div id="sidebar">
+        <div class="section">
+            <h3>Search & Filter</h3>
+            <input type="text" id="search-box" placeholder="Search plants...">
+            
+            <div class="filter-group" style="margin-top: 15px;">
+                <label>Height</label>
+                <select id="height-filter">
+                    <option value="">All Heights</option>
+                    <option value="groundcover">Groundcover (< 1')</option>
+                    <option value="low">Low (1-2')</option>
+                    <option value="medium">Medium (2-4')</option>
+                    <option value="tall">Tall (4-8')</option>
+                    <option value="tree">Tree/Large Shrub (8'+)</option>
+                </select>
             </div>
+            
+            <div class="filter-group">
+                <label>Bloom Time</label>
+                <select id="bloom-filter">
+                    <option value="">All Seasons</option>
+                    <option value="early-spring">Early Spring</option>
+                    <option value="late-spring">Late Spring</option>
+                    <option value="early-summer">Early Summer</option>
+                    <option value="mid-summer">Mid Summer</option>
+                    <option value="late-summer">Late Summer</option>
+                    <option value="fall">Fall</option>
+                </select>
+            </div>
+            
+            <div class="filter-group">
+                <label>Type</label>
+                <select id="type-filter">
+                    <option value="">All Types</option>
+                    <option value="Forb">Forbs</option>
+                    <option value="Grass">Grasses</option>
+                    <option value="Sedge">Sedges</option>
+                    <option value="Fern">Ferns</option>
+                    <option value="Shrub">Shrubs</option>
+                    <option value="Tree">Trees</option>
+                </select>
+            </div>
+            
+            <button id="clear-selection">Clear Selection</button>
+            
+            <div class="color-legend">
+                <div style="font-size: 11px; font-weight: 600; width: 100%; margin-bottom: 5px;">Bloom Time Colors:</div>
+                <div class="legend-item">
+                    <span class="legend-circle" style="background: #fef3c7;"></span>
+                    Early Spring
+                </div>
+                <div class="legend-item">
+                    <span class="legend-circle" style="background: #fde68a;"></span>
+                    Late Spring
+                </div>
+                <div class="legend-item">
+                    <span class="legend-circle" style="background: #fb923c;"></span>
+                    Early Summer
+                </div>
+                <div class="legend-item">
+                    <span class="legend-circle" style="background: #f472b6;"></span>
+                    Mid Summer
+                </div>
+                <div class="legend-item">
+                    <span class="legend-circle" style="background: #a78bfa;"></span>
+                    Late Summer
+                </div>
+                <div class="legend-item">
+                    <span class="legend-circle" style="background: #c084fc;"></span>
+                    Fall
+                </div>
+                <div class="legend-item">
+                    <span class="legend-circle" style="background: #d1d5db;"></span>
+                    No Data
+                </div>
+            </div>
+            
             <div class="stats" id="stats"></div>
         </div>
-        <svg id="graph"></svg>
+        
+        <div id="plant-details">
+            <div class="empty-state">
+                <p>Click a plant to see details</p>
+            </div>
+        </div>
     </div>
     
-    <div id="sidebar" class="empty">
-        <p>Click a plant node to view its companions and ecological relationships</p>
+    <div id="main-content">
+        <div id="graph-container">
+            <svg id="graph"></svg>
+            <div class="zoom-controls">
+                <button class="zoom-btn" id="zoom-in">+</button>
+                <button class="zoom-btn" id="zoom-reset">⊙</button>
+                <button class="zoom-btn" id="zoom-out">−</button>
+            </div>
+        </div>
+        
+        <div class="timeline" id="timeline" style="display: none;">
+            <h3>Bloom Timeline for Selected Plants</h3>
+            <div class="timeline-months">
+                <div class="timeline-month">Mar</div>
+                <div class="timeline-month">Apr</div>
+                <div class="timeline-month">May</div>
+                <div class="timeline-month">Jun</div>
+                <div class="timeline-month">Jul</div>
+                <div class="timeline-month">Aug</div>
+                <div class="timeline-month">Sep</div>
+                <div class="timeline-month">Oct</div>
+            </div>
+            <div id="timeline-content"></div>
+        </div>
     </div>
 
     <script>
-        // Ecological groupings based on the batch organization
-        const ecologicalGroups = {
-            'Schizachyrium scoparium': 'dry-prairie',
-            'Coreopsis lanceolata': 'dry-prairie',
-            'Solidago nemoralis': 'dry-prairie',
-            'Rudbeckia hirta': 'dry-prairie',
-            'Bouteloua curtipendula': 'dry-prairie',
-            'Asclepias tuberosa': 'dry-prairie',
-            'Liatris cylindracea': 'dry-prairie',
-            'Liatris aspera': 'dry-prairie',
-            'Solidago ptarmicoides': 'dry-prairie',
-            'Echinacea pallida': 'dry-prairie',
-            
-            'Asclepias incarnata': 'moist-meadow',
-            'Eupatorium perfoliatum': 'moist-meadow',
-            'Spiraea alba': 'moist-meadow',
-            'Chelone glabra': 'moist-meadow',
-            'Iris versicolor': 'moist-meadow',
-            'Lobelia cardinalis': 'moist-meadow',
-            'Lobelia siphilitica': 'moist-meadow',
-            'Carex stricta': 'moist-meadow',
-            'Carex vulpinoidea': 'moist-meadow',
-            'Carex lupulina': 'moist-meadow',
-            'Calamagrostis canadensis': 'moist-meadow',
-            'Mimulus ringens': 'moist-meadow',
-            
-            'Carex rosea': 'woodland',
-            'Polystichum acrostichoides': 'woodland',
-            'Thalictrum dioicum': 'woodland',
-            'Gaultheria procumbens': 'woodland',
-            'Aquilegia canadensis': 'woodland',
-            'Viola sororia': 'woodland',
-            'Viola canadensis': 'woodland',
-            'Geranium maculatum': 'woodland',
-            'Carex plantaginea': 'woodland',
-            'Solidago flexicaulis': 'woodland',
-            'Phlox divaricata': 'woodland',
-            'Eurybia macrophylla': 'woodland',
-            'Vaccinium angustifolium': 'woodland',
-            'Cornus canadensis': 'woodland',
-            'Mitchella repens': 'woodland',
-            'Carex pensylvanica': 'woodland',
-            
-            'Carex sparganioides': 'transitional',
-            'Penstemon digitalis': 'transitional',
-            'Symphyotrichum oolentangiense': 'transitional',
-            'Diervilla lonicera': 'transitional',
-            'Fragaria virginiana': 'transitional'
-        };
-
-        const groupColors = {
-            'dry-prairie': '#f59e0b',
-            'moist-meadow': '#3b82f6',
-            'woodland': '#10b981',
-            'transitional': '#8b5cf6'
-        };
-
-        const groupNames = {
-            'dry-prairie': 'Dry Prairie',
-            'moist-meadow': 'Moist Meadow',
-            'woodland': 'Woodland',
-            'transitional': 'Transitional'
-        };
-
+        // Plant database will be loaded here
+        let plantDatabase = {};
+        
         // Parse CSV data
         const csvData = `Primary Plant,Companion 1,Companion 2,Companion 3,Companion 4,Companion 5
-Schizachyrium scoparium,Solidago nemoralis,Bouteloua curtipendula,Liatris cylindracea,Solidago ptarmicoides,Asclepias tuberosa
-Coreopsis lanceolata,Schizachyrium scoparium,Rudbeckia hirta,Penstemon digitalis,Echinacea pallida,Bouteloua curtipendula
-Solidago nemoralis,Schizachyrium scoparium,Bouteloua curtipendula,Asclepias tuberosa,Liatris cylindracea,Solidago ptarmicoides
-Rudbeckia hirta,Schizachyrium scoparium,Solidago nemoralis,Coreopsis lanceolata,Penstemon digitalis,Asclepias tuberosa
+Achillea millefolium,Schizachyrium scoparium,Asclepias tuberosa,Rudbeckia hirta,Penstemon digitalis,Monarda fistulosa
+Amelanchier laevis,Cornus alternifolia,Viburnum lentago,Aronia melanocarpa,Diervilla lonicera,Carex pensylvanica
+Anaphalis margaritacea,Solidago ptarmicoides,Schizachyrium scoparium,Sporobolus cryptandrus,Viola adunca,Asclepias tuberosa
+Antennaria plantaginifolia,Carex pensylvanica,Viola pedata,Sisyrinchium angustifolium,Liatris cylindracea,Schizachyrium scoparium
 Asclepias incarnata,Iris versicolor,Eupatorium perfoliatum,Lobelia cardinalis,Chelone glabra,Carex stricta
-Eupatorium perfoliatum,Iris versicolor,Lobelia cardinalis,Calamagrostis canadensis,Mimulus ringens,Carex lupulina
-Spiraea alba,Calamagrostis canadensis,Iris versicolor,Asclepias incarnata,Carex stricta,Lobelia cardinalis
-Chelone glabra,Iris versicolor,Lobelia siphilitica,Asclepias incarnata,Eupatorium perfoliatum,Carex vulpinoidea
+Bouteloua curtipendula,Schizachyrium scoparium,Solidago nemoralis,Liatris cylindracea,Asclepias tuberosa,Penstemon digitalis
+Calamagrostis canadensis,Iris versicolor,Eupatorium perfoliatum,Spiraea alba,Carex stricta,Lobelia cardinalis
+Carex bebbii,Iris versicolor,Lobelia cardinalis,Eupatorium perfoliatum,Calamagrostis canadensis,Spiraea alba
+Carex gracilima,Polystichum acrostichoides,Thalictrum dioicum,Viola canadensis,Aquilegia canadensis,Eurybia macrophylla
+Carex pensylvanica,Gaultheria procumbens,Antennaria plantaginifolia,Vaccinium angustifolium,Maianthemum canadense,Fragaria virginiana
 Carex rosea,Polystichum acrostichoides,Aquilegia canadensis,Thalictrum dioicum,Viola sororia,Geranium maculatum
-Polystichum acrostichoides,Thalictrum dioicum,Aquilegia canadensis,Carex plantaginea,Viola canadensis,Solidago flexicaulis
-Thalictrum dioicum,Polystichum acrostichoides,Aquilegia canadensis,Carex plantaginea,Phlox divaricata,Viola canadensis
-Gaultheria procumbens,Vaccinium angustifolium,Cornus canadensis,Mitchella repens,Polystichum acrostichoides,Carex pensylvanica
 Carex sparganioides,Polystichum acrostichoides,Aquilegia canadensis,Eurybia macrophylla,Solidago flexicaulis,Thalictrum dioicum
-Penstemon digitalis,Schizachyrium scoparium,Solidago nemoralis,Asclepias tuberosa,Coreopsis lanceolata,Liatris cylindracea
-Symphyotrichum oolentangiense,Schizachyrium scoparium,Solidago ptarmicoides,Liatris aspera,Penstemon digitalis,Asclepias tuberosa
+Carex vulpinoidea,Eupatorium perfoliatum,Chelone glabra,Iris versicolor,Lobelia siphilitica,Carex stricta
+Chelone glabra,Iris versicolor,Lobelia siphilitica,Asclepias incarnata,Eupatorium perfoliatum,Carex vulpinoidea
+Coreopsis lanceolata,Schizachyrium scoparium,Rudbeckia hirta,Penstemon digitalis,Echinacea pallida,Bouteloua curtipendula
+Cornus alternifolia,Amelanchier laevis,Viburnum lentago,Polystichum acrostichoides,Eurybia macrophylla,Thalictrum dioicum
+Cornus sericea,Spiraea alba,Calamagrostis canadensis,Iris versicolor,Lobelia cardinalis,Eupatorium perfoliatum
 Diervilla lonicera,Carex pensylvanica,Gaultheria procumbens,Polystichum acrostichoides,Thalictrum dioicum,Viola sororia
+Echinacea pallida,Schizachyrium scoparium,Liatris aspera,Coreopsis lanceolata,Asclepias tuberosa,Rudbeckia hirta
+Elymus hystrix,Polystichum acrostichoides,Thalictrum dioicum,Eurybia macrophylla,Solidago flexicaulis,Carex gracilima
+Eupatorium perfoliatum,Iris versicolor,Lobelia cardinalis,Calamagrostis canadensis,Mimulus ringens,Carex lupulina
+Eutrochium maculatum,Lobelia cardinalis,Iris versicolor,Asclepias incarnata,Eupatorium perfoliatum,Calamagrostis canadensis
 Fragaria virginiana,Viola sororia,Phlox divaricata,Thalictrum dioicum,Aquilegia canadensis,Polystichum acrostichoides
-Iris versicolor,Asclepias incarnata,Eupatorium perfoliatum,Lobelia cardinalis,Mimulus ringens,Carex stricta`;
+Gaultheria procumbens,Vaccinium angustifolium,Cornus canadensis,Mitchella repens,Polystichum acrostichoides,Carex pensylvanica
+Geum triflorum,Antennaria plantaginifolia,Phlox divaricata,Viola sororia,Thalictrum dioicum,Fragaria virginiana
+Ilex verticillata,Calamagrostis canadensis,Spiraea alba,Lobelia cardinalis,Iris versicolor,Carex stricta
+Iris versicolor,Asclepias incarnata,Eupatorium perfoliatum,Lobelia cardinalis,Mimulus ringens,Carex stricta
+Liatris aspera,Schizachyrium scoparium,Asclepias tuberosa,Solidago ptarmicoides,Echinacea pallida,Penstemon digitalis
+Monarda fistulosa,Schizachyrium scoparium,Echinacea pallida,Liatris aspera,Penstemon digitalis,Rudbeckia hirta
+Morella pensylvanica,Carex pensylvanica,Gaultheria procumbens,Vaccinium angustifolium,Comptonia peregrina,Schizachyrium scoparium
+Myrica gale,Osmunda regalis,Carex stricta,Iris versicolor,Spiraea alba,Calamagrostis canadensis
+Penstemon digitalis,Schizachyrium scoparium,Solidago nemoralis,Asclepias tuberosa,Coreopsis lanceolata,Liatris cylindracea
+Penstemon hirsutus,Schizachyrium scoparium,Liatris cylindracea,Solidago ptarmicoides,Asclepias tuberosa,Bouteloua curtipendula
+Phlox divaricata,Thalictrum dioicum,Aquilegia canadensis,Polystichum acrostichoides,Viola canadensis,Geranium maculatum
+Physocarpus opulifolius,Cornus sericea,Spiraea alba,Amelanchier laevis,Viburnum lentago,Carex stricta
+Polystichum acrostichoides,Thalictrum dioicum,Aquilegia canadensis,Carex plantaginea,Viola canadensis,Solidago flexicaulis
+Pycnanthemum tenuifolium,Monarda fistulosa,Schizachyrium scoparium,Liatris aspera,Solidago nemoralis,Echinacea pallida
+Rubus odoratus,Polystichum acrostichoides,Thalictrum dioicum,Eurybia macrophylla,Solidago flexicaulis,Carex gracilima
+Rudbeckia hirta,Schizachyrium scoparium,Solidago nemoralis,Coreopsis lanceolata,Penstemon digitalis,Asclepias tuberosa
+Schizachyrium scoparium,Solidago nemoralis,Bouteloua curtipendula,Liatris cylindracea,Solidago ptarmicoides,Asclepias tuberosa
+Shepherdia canadensis,Morella pensylvanica,Amelanchier laevis,Carex pensylvanica,Juniperus virginiana,Cornus alternifolia
+Solidago flexicaulis,Polystichum acrostichoides,Eurybia macrophylla,Thalictrum dioicum,Carex sparganioides,Geranium maculatum
+Solidago nemoralis,Schizachyrium scoparium,Bouteloua curtipendula,Asclepias tuberosa,Liatris cylindracea,Solidago ptarmicoides
+Solidago ptarmicoides,Schizachyrium scoparium,Solidago nemoralis,Liatris cylindracea,Asclepias tuberosa,Anaphalis margaritacea
+Solidago rugosa,Eupatorium perfoliatum,Iris versicolor,Asclepias incarnata,Calamagrostis canadensis,Lobelia cardinalis
+Spiraea alba,Calamagrostis canadensis,Iris versicolor,Asclepias incarnata,Carex stricta,Lobelia cardinalis
+Symphyotrichum cordifolium,Solidago flexicaulis,Eurybia macrophylla,Polystichum acrostichoides,Thalictrum dioicum,Carex sparganioides
+Symphyotrichum novae-angliae,Panicum virgatum,Liatris spicata,Monarda fistulosa,Rudbeckia hirta,Solidago rugosa
+Symphyotrichum oolentangiense,Schizachyrium scoparium,Solidago ptarmicoides,Liatris aspera,Penstemon digitalis,Asclepias tuberosa
+Thalictrum dioicum,Polystichum acrostichoides,Aquilegia canadensis,Carex plantaginea,Phlox divaricata,Viola canadensis
+Tradescantia ohiensis,Schizachyrium scoparium,Penstemon hirsutus,Liatris cylindracea,Monarda fistulosa,Rudbeckia hirta
+Viola canadensis,Polystichum acrostichoides,Thalictrum dioicum,Aquilegia canadensis,Carex gracilima,Solidago flexicaulis`;
 
-        // Process the data
-        const lines = csvData.trim().split('\n');
-        const nodes = new Map();
-        const links = [];
-        const primaryPlants = new Set();
-        const connectionsByPlant = new Map();
-
-        lines.slice(1).forEach(line => {
-            const parts = line.split(',');
-            const primary = parts[0];
-            primaryPlants.add(primary);
-            
-            if (!nodes.has(primary)) {
-                nodes.set(primary, { 
-                    id: primary, 
-                    type: 'primary',
-                    connections: 0,
-                    group: ecologicalGroups[primary] || 'other'
-                });
-            }
-            
-            const companions = [];
-            for (let i = 1; i < parts.length; i++) {
-                const companion = parts[i];
-                if (companion) {
-                    if (!nodes.has(companion)) {
-                        nodes.set(companion, { 
-                            id: companion, 
-                            type: 'companion',
-                            connections: 0,
-                            group: ecologicalGroups[companion] || 'other'
-                        });
+        // Load and process plant database JSON
+        fetch('plant-database.json')
+            .then(response => response.json())
+            .then(data => {
+                // Index by Name
+                data.forEach(plant => {
+                    if (plant.Name) {
+                        plantDatabase[plant.Name] = plant;
                     }
-                    
-                    links.push({
-                        source: primary,
-                        target: companion
-                    });
-                    
-                    companions.push(companion);
-                    nodes.get(primary).connections++;
-                    nodes.get(companion).connections++;
-                }
-            }
-            
-            connectionsByPlant.set(primary, companions);
-        });
+                });
+                console.log('Loaded plant database:', Object.keys(plantDatabase).length, 'plants');
+                initializeGraph();
+            })
+            .catch(error => {
+                console.error('Error loading plant database:', error);
+                initializeGraph(); // Continue without database
+            });
 
-        let nodesArray = Array.from(nodes.values());
-        let currentFilter = 'all';
-        
-        // Calculate stats
-        function updateStats() {
-            const visibleNodes = nodesArray.filter(n => 
-                currentFilter === 'all' || n.group === currentFilter
-            );
-            const visiblePrimary = visibleNodes.filter(n => n.type === 'primary').length;
-            const visibleCompanions = visibleNodes.filter(n => n.type === 'companion').length;
-            const visibleLinks = links.filter(l => {
-                const sourceNode = nodes.get(typeof l.source === 'object' ? l.source.id : l.source);
-                const targetNode = nodes.get(typeof l.target === 'object' ? l.target.id : l.target);
-                return (currentFilter === 'all' || 
-                    sourceNode.group === currentFilter || 
-                    targetNode.group === currentFilter);
-            }).length;
+        function initializeGraph() {
+            // Process the CSV data
+            const lines = csvData.trim().split('\n');
+            const nodes = new Map();
+            const links = [];
+            const primaryPlants = new Set();
+
+            lines.slice(1).forEach(line => {
+                const parts = line.split(',');
+                const primary = parts[0];
+                primaryPlants.add(primary);
+                
+                if (!nodes.has(primary)) {
+                    const plantData = plantDatabase[primary] || {};
+                    nodes.set(primary, { 
+                        id: primary,
+                        type: 'primary',
+                        connections: 0,
+                        data: plantData
+                    });
+                }
+                
+                for (let i = 1; i < parts.length; i++) {
+                    const companion = parts[i];
+                    if (companion) {
+                        if (!nodes.has(companion)) {
+                            const plantData = plantDatabase[companion] || {};
+                            nodes.set(companion, { 
+                                id: companion,
+                                type: 'companion',
+                                connections: 0,
+                                data: plantData
+                            });
+                        }
+                        
+                        links.push({
+                            source: primary,
+                            target: companion
+                        });
+                        
+                        nodes.get(primary).connections++;
+                        nodes.get(companion).connections++;
+                    }
+                }
+            });
+
+            const nodesArray = Array.from(nodes.values());
+            
+            // Calculate stats
+            const totalConnections = links.length;
+            const uniqueCompanions = nodesArray.filter(n => n.type === 'companion').length;
+            const avgConnectionsPerPrimary = (totalConnections / primaryPlants.size).toFixed(1);
             
             document.getElementById('stats').innerHTML = `
-                <strong>Showing:</strong> 
-                ${visiblePrimary} primary plants, 
-                ${visibleCompanions} companions, 
-                ${visibleLinks} connections
+                <strong>Network Stats:</strong><br>
+                ${primaryPlants.size} primary plants<br>
+                ${uniqueCompanions} unique companions<br>
+                ${totalConnections} total connections<br>
+                ${avgConnectionsPerPrimary} avg per primary
             `;
-        }
-        
-        updateStats();
 
-        // Set up SVG
-        const width = window.innerWidth - 390;
-        const height = window.innerHeight - 180;
-        
-        const svg = d3.select('#graph')
-            .attr('width', width)
-            .attr('height', height);
-
-        let link, node, label, simulation;
-
-        function initGraph() {
-            svg.selectAll('*').remove();
+            // Set up SVG
+            const container = document.getElementById('graph-container');
+            const width = container.clientWidth;
+            const height = container.clientHeight;
             
-            const filteredNodes = currentFilter === 'all' ? 
-                nodesArray : 
-                nodesArray.filter(n => n.group === currentFilter);
-            
-            const filteredLinks = currentFilter === 'all' ?
-                links :
-                links.filter(l => {
-                    const sourceNode = nodes.get(typeof l.source === 'object' ? l.source.id : l.source);
-                    const targetNode = nodes.get(typeof l.target === 'object' ? l.target.id : l.target);
-                    return sourceNode.group === currentFilter || targetNode.group === currentFilter;
+            const svg = d3.select('#graph')
+                .attr('width', width)
+                .attr('height', height);
+
+            const g = svg.append('g');
+
+            // Add zoom behavior
+            const zoom = d3.zoom()
+                .scaleExtent([0.1, 4])
+                .on('zoom', (event) => {
+                    g.attr('transform', event.transform);
                 });
 
-            simulation = d3.forceSimulation(filteredNodes)
-                .force('link', d3.forceLink(filteredLinks)
+            svg.call(zoom);
+
+            // Zoom controls
+            document.getElementById('zoom-in').addEventListener('click', () => {
+                svg.transition().call(zoom.scaleBy, 1.3);
+            });
+            
+            document.getElementById('zoom-out').addEventListener('click', () => {
+                svg.transition().call(zoom.scaleBy, 0.7);
+            });
+            
+            document.getElementById('zoom-reset').addEventListener('click', () => {
+                svg.transition().call(zoom.transform, d3.zoomIdentity);
+            });
+
+            // Helper functions
+            function getHeightCategory(heightStr) {
+                if (!heightStr) return 'medium';
+                const lower = heightStr.toLowerCase();
+                if (lower.includes('groundcover') || lower.includes('< 1')) return 'groundcover';
+                if (lower.includes('low') || lower.includes('1-2')) return 'low';
+                if (lower.includes('medium') || lower.includes('2-4') || lower.includes('3-6')) return 'medium';
+                if (lower.includes('tall') || lower.includes('4-8') || lower.includes('5-10')) return 'tall';
+                if (lower.includes('tree') || lower.includes('8+') || lower.includes('10+')) return 'tree';
+                return 'medium';
+            }
+
+            function getNodeRadius(heightCategory, isPrimary) {
+                const baseSize = isPrimary ? 2 : 1;
+                const sizes = {
+                    'groundcover': 4 + baseSize,
+                    'low': 6 + baseSize,
+                    'medium': 8 + baseSize,
+                    'tall': 11 + baseSize,
+                    'tree': 14 + baseSize
+                };
+                return sizes[heightCategory] || sizes.medium;
+            }
+
+            function getBloomColor(bloomTime) {
+                if (!bloomTime) return '#d1d5db';
+                const lower = bloomTime.toLowerCase();
+                if (lower.includes('early') && lower.includes('spring')) return '#fef3c7';
+                if (lower.includes('late') && lower.includes('spring')) return '#fde68a';
+                if (lower.includes('early') && lower.includes('summer')) return '#fb923c';
+                if (lower.includes('mid') && lower.includes('summer')) return '#f472b6';
+                if (lower.includes('late') && lower.includes('summer')) return '#a78bfa';
+                if (lower.includes('fall')) return '#c084fc';
+                return '#d1d5db';
+            }
+
+            function normalizeBloomTime(bloomTime) {
+                if (!bloomTime) return null;
+                const lower = bloomTime.toLowerCase();
+                if (lower.includes('early') && lower.includes('spring')) return 'early-spring';
+                if (lower.includes('late') && lower.includes('spring')) return 'late-spring';
+                if (lower.includes('early') && lower.includes('summer')) return 'early-summer';
+                if (lower.includes('mid') && lower.includes('summer')) return 'mid-summer';
+                if (lower.includes('late') && lower.includes('summer')) return 'late-summer';
+                if (lower.includes('fall')) return 'fall';
+                return null;
+            }
+
+            // Add height and bloom info to nodes
+            nodesArray.forEach(node => {
+                node.heightCategory = getHeightCategory(node.data.Height);
+                node.bloomTime = normalizeBloomTime(node.data['Bloom time']);
+                node.bloomColor = getBloomColor(node.data['Bloom time']);
+                node.radius = getNodeRadius(node.heightCategory, node.type === 'primary');
+            });
+
+            // Create force simulation
+            const simulation = d3.forceSimulation(nodesArray)
+                .force('link', d3.forceLink(links)
                     .id(d => d.id)
-                    .distance(80)
+                    .distance(100)
                     .strength(0.5))
                 .force('charge', d3.forceManyBody()
-                    .strength(-350))
+                    .strength(-400))
                 .force('center', d3.forceCenter(width / 2, height / 2))
-                .force('collision', d3.forceCollide().radius(35))
+                .force('collision', d3.forceCollide().radius(d => d.radius + 5))
                 .force('x', d3.forceX(width / 2).strength(0.1))
                 .force('y', d3.forceY(height / 2).strength(0.1));
 
-            link = svg.append('g')
+            // Create links
+            const link = g.append('g')
                 .selectAll('line')
-                .data(filteredLinks)
+                .data(links)
                 .join('line')
                 .attr('class', 'link');
 
-            node = svg.append('g')
+            // Create nodes
+            const node = g.append('g')
                 .selectAll('circle')
-                .data(filteredNodes)
+                .data(nodesArray)
                 .join('circle')
                 .attr('class', d => `node ${d.type}`)
-                .attr('r', d => d.type === 'primary' ? 8 : 6)
+                .attr('r', d => d.radius)
+                .attr('fill', d => d.bloomColor)
                 .call(drag(simulation));
 
-            label = svg.append('g')
+            // Create labels
+            const label = g.append('g')
                 .selectAll('text')
-                .data(filteredNodes)
+                .data(nodesArray)
                 .join('text')
+                .attr('class', d => d.type === 'primary' ? 'primary-label' : '')
                 .text(d => {
                     const parts = d.id.split(' ');
-                    return parts[0] + (parts[1] ? ' ' + parts[1].substring(0, 4) + '.' : '');
+                    return parts[0] + (parts[1] ? ' ' + parts[1].substring(0, 3) + '.' : '');
                 })
-                .attr('dy', -12)
-                .style('font-size', d => d.type === 'primary' ? '11px' : '9px')
-                .style('font-weight', d => d.type === 'primary' ? 'bold' : 'normal');
+                .attr('dy', -12);
 
+            let selectedNode = null;
+
+            // Node click handler
             node.on('click', function(event, d) {
-                showPlantDetails(d);
+                event.stopPropagation();
+                selectedNode = d;
                 
-                node.classed('highlighted', false);
-                link.classed('highlighted', false);
+                // Reset all
+                node.classed('highlighted', false).classed('dimmed', false);
+                link.classed('highlighted', false).classed('dimmed', false);
+                label.classed('dimmed', false);
                 
-                d3.select(this).classed('highlighted', true);
-                
-                link.each(function(l) {
+                // Find connected node IDs
+                const connectedIds = new Set([d.id]);
+                links.forEach(l => {
                     const sourceId = typeof l.source === 'object' ? l.source.id : l.source;
                     const targetId = typeof l.target === 'object' ? l.target.id : l.target;
                     
-                    if (sourceId === d.id || targetId === d.id) {
-                        d3.select(this).classed('highlighted', true);
-                        node.filter(n => n.id === sourceId || n.id === targetId)
-                            .classed('highlighted', true);
-                    }
+                    if (sourceId === d.id) connectedIds.add(targetId);
+                    if (targetId === d.id) connectedIds.add(sourceId);
                 });
+                
+                // Highlight connected
+                node.classed('highlighted', n => connectedIds.has(n.id))
+                    .classed('dimmed', n => !connectedIds.has(n.id));
+                
+                label.classed('dimmed', n => !connectedIds.has(n.id));
+                
+                link.classed('highlighted', l => {
+                    const sourceId = typeof l.source === 'object' ? l.source.id : l.source;
+                    const targetId = typeof l.target === 'object' ? l.target.id : l.target;
+                    return sourceId === d.id || targetId === d.id;
+                }).classed('dimmed', l => {
+                    const sourceId = typeof l.source === 'object' ? l.source.id : l.source;
+                    const targetId = typeof l.target === 'object' ? l.target.id : l.target;
+                    return sourceId !== d.id && targetId !== d.id;
+                });
+                
+                showPlantDetails(d);
+                updateTimeline([d, ...Array.from(connectedIds).filter(id => id !== d.id).map(id => nodesArray.find(n => n.id === id))]);
             });
 
+            // Clear selection
+            svg.on('click', () => {
+                if (event.target.tagName === 'svg') {
+                    clearSelection();
+                }
+            });
+
+            document.getElementById('clear-selection').addEventListener('click', clearSelection);
+
+            function clearSelection() {
+                selectedNode = null;
+                node.classed('highlighted', false).classed('dimmed', false);
+                link.classed('highlighted', false).classed('dimmed', false);
+                label.classed('dimmed', false);
+                document.getElementById('plant-details').innerHTML = '<div class="empty-state"><p>Click a plant to see details</p></div>';
+                document.getElementById('timeline').style.display = 'none';
+            }
+
+            function showPlantDetails(d) {
+                const data = d.data;
+                const companions = links
+                    .filter(l => {
+                        const sourceId = typeof l.source === 'object' ? l.source.id : l.source;
+                        const targetId = typeof l.target === 'object' ? l.target.id : l.target;
+                        return sourceId === d.id || targetId === d.id;
+                    })
+                    .map(l => {
+                        const sourceId = typeof l.source === 'object' ? l.source.id : l.source;
+                        const targetId = typeof l.target === 'object' ? l.target.id : l.target;
+                        return sourceId === d.id ? targetId : sourceId;
+                    })
+                    .filter(id => id !== d.id);
+
+                const html = `
+                    <div class="detail-section">
+                        <h4>${d.id}</h4>
+                        <p>${data['Common Name'] || 'Common name not available'}</p>
+                    </div>
+                    
+                    ${data.Description ? `
+                    <div class="detail-section">
+                        <div class="detail-label">Description</div>
+                        <p>${data.Description}</p>
+                    </div>
+                    ` : ''}
+                    
+                    <div class="detail-section">
+                        <div class="detail-label">Visual Attributes</div>
+                        <p><strong>Type:</strong> ${data.Type || 'Unknown'}</p>
+                        <p><strong>Height:</strong> ${data.Height || 'Unknown'}</p>
+                        <p><strong>Bloom Time:</strong> ${data['Bloom time'] || 'Unknown'}</p>
+                        <p><strong>Bloom Color:</strong> ${data['Bloom color'] || 'Unknown'}</p>
+                        ${data.Layer ? `<p><strong>Layer:</strong> ${data.Layer}</p>` : ''}
+                    </div>
+                    
+                    <div class="detail-section">
+                        <div class="detail-label">Growing Conditions</div>
+                        <p><strong>Sun:</strong> ${data.Sun || 'Unknown'}</p>
+                        <p><strong>Moisture:</strong> ${data.Moisture || 'Unknown'}</p>
+                        ${data['pH Requirements'] ? `<p><strong>pH:</strong> ${data['pH Requirements']}</p>` : ''}
+                    </div>
+                    
+                    ${data.Habit ? `
+                    <div class="detail-section">
+                        <div class="detail-label">Habit</div>
+                        <p>${data.Habit}</p>
+                    </div>
+                    ` : ''}
+                    
+                    <div class="detail-section">
+                        <div class="detail-label">Companion Plants (${companions.length})</div>
+                        <ul class="companion-list">
+                            ${companions.slice(0, 10).map(c => `<li>${c}</li>`).join('')}
+                            ${companions.length > 10 ? `<li><em>... and ${companions.length - 10} more</em></li>` : ''}
+                        </ul>
+                    </div>
+                `;
+                
+                document.getElementById('plant-details').innerHTML = html;
+            }
+
+            function updateTimeline(plants) {
+                const bloomMonths = {
+                    'early-spring': [2, 3],
+                    'late-spring': [4, 5],
+                    'early-summer': [5, 6],
+                    'mid-summer': [6, 7],
+                    'late-summer': [7, 8],
+                    'fall': [8, 9]
+                };
+
+                const plantsWithBloom = plants.filter(p => p && p.bloomTime).slice(0, 15);
+                
+                if (plantsWithBloom.length === 0) {
+                    document.getElementById('timeline').style.display = 'none';
+                    return;
+                }
+
+                document.getElementById('timeline').style.display = 'block';
+                
+                const html = plantsWithBloom.map(p => {
+                    const months = bloomMonths[p.bloomTime] || [0, 0];
+                    const startPct = (months[0] / 8) * 100;
+                    const widthPct = ((months[1] - months[0]) / 8) * 100;
+                    
+                    return `
+                        <div class="timeline-bar" style="background: linear-gradient(90deg, transparent ${startPct}%, ${p.bloomColor} ${startPct}%, ${p.bloomColor} ${startPct + widthPct}%, transparent ${startPct + widthPct}%);">
+                            <div class="timeline-label">${p.id.split(' ')[0]} ${p.id.split(' ')[1]?.substring(0, 3) || ''}</div>
+                        </div>
+                    `;
+                }).join('');
+                
+                document.getElementById('timeline-content').innerHTML = html;
+            }
+
+            // Search and filter
+            const searchBox = document.getElementById('search-box');
+            const heightFilter = document.getElementById('height-filter');
+            const bloomFilter = document.getElementById('bloom-filter');
+            const typeFilter = document.getElementById('type-filter');
+
+            function applyFilters() {
+                const searchTerm = searchBox.value.toLowerCase();
+                const heightValue = heightFilter.value;
+                const bloomValue = bloomFilter.value;
+                const typeValue = typeFilter.value;
+
+                node.style('display', d => {
+                    const matchesSearch = !searchTerm || d.id.toLowerCase().includes(searchTerm) || 
+                                         (d.data['Common Name'] || '').toLowerCase().includes(searchTerm);
+                    const matchesHeight = !heightValue || d.heightCategory === heightValue;
+                    const matchesBloom = !bloomValue || d.bloomTime === bloomValue;
+                    const matchesType = !typeValue || d.data.Type === typeValue;
+                    
+                    return (matchesSearch && matchesHeight && matchesBloom && matchesType) ? null : 'none';
+                });
+
+                label.style('display', d => {
+                    const matchesSearch = !searchTerm || d.id.toLowerCase().includes(searchTerm) || 
+                                         (d.data['Common Name'] || '').toLowerCase().includes(searchTerm);
+                    const matchesHeight = !heightValue || d.heightCategory === heightValue;
+                    const matchesBloom = !bloomValue || d.bloomTime === bloomValue;
+                    const matchesType = !typeValue || d.data.Type === typeValue;
+                    
+                    return (matchesSearch && matchesHeight && matchesBloom && matchesType) ? null : 'none';
+                });
+            }
+
+            searchBox.addEventListener('input', applyFilters);
+            heightFilter.addEventListener('change', applyFilters);
+            bloomFilter.addEventListener('change', applyFilters);
+            typeFilter.addEventListener('change', applyFilters);
+
+            // Update positions on simulation tick
             simulation.on('tick', () => {
                 link
                     .attr('x1', d => d.source.x)
@@ -503,151 +927,32 @@ Iris versicolor,Asclepias incarnata,Eupatorium perfoliatum,Lobelia cardinalis,Mi
                     .attr('x', d => d.x)
                     .attr('y', d => d.y);
             });
-        }
 
-        function showPlantDetails(plant) {
-            const sidebar = document.getElementById('sidebar');
-            sidebar.classList.remove('empty');
-            
-            const companions = connectionsByPlant.get(plant.id) || [];
-            const connectedTo = [];
-            
-            links.forEach(l => {
-                const sourceId = typeof l.source === 'object' ? l.source.id : l.source;
-                const targetId = typeof l.target === 'object' ? l.target.id : l.target;
-                
-                if (sourceId === plant.id && !companions.includes(targetId)) {
-                    connectedTo.push(targetId);
-                } else if (targetId === plant.id && !companions.includes(sourceId)) {
-                    connectedTo.push(sourceId);
+            // Drag behavior
+            function drag(simulation) {
+                function dragstarted(event) {
+                    if (!event.active) simulation.alphaTarget(0.3).restart();
+                    event.subject.fx = event.subject.x;
+                    event.subject.fy = event.subject.y;
                 }
-            });
-            
-            const groupName = groupNames[plant.group] || 'Other';
-            const groupColor = groupColors[plant.group] || '#6b7280';
-            
-            let html = `
-                <div class="plant-detail">
-                    <div class="plant-name">${plant.id}</div>
-                    <span class="plant-type ${plant.type}">${plant.type === 'primary' ? 'Primary Plant' : 'Companion Plant'}</span>
-                    <br>
-                    <span class="ecological-group" style="background: ${groupColor}22; color: ${groupColor};">${groupName}</span>
-                    <div style="margin-top: 12px; font-size: 13px; color: #6b7280;">
-                        <strong>${plant.connections}</strong> total connections in network
-                    </div>
-                </div>
-            `;
-            
-            if (companions.length > 0) {
-                html += `
-                    <div class="connections-list">
-                        <strong style="color: #1f2937; font-size: 14px;">Curated Companions:</strong>
-                        ${companions.map(c => {
-                            const companionNode = nodes.get(c);
-                            const cGroupName = groupNames[companionNode.group] || 'Other';
-                            const cGroupColor = groupColors[companionNode.group] || '#6b7280';
-                            return `
-                                <div class="connection-item" onclick="highlightPlant('${c}')">
-                                    <div class="connection-name">${c}</div>
-                                    <div class="connection-meta">
-                                        <span class="ecological-group" style="background: ${cGroupColor}22; color: ${cGroupColor}; font-size: 10px;">${cGroupName}</span>
-                                        <span>${companionNode.connections} connections</span>
-                                    </div>
-                                </div>
-                            `;
-                        }).join('')}
-                    </div>
-                `;
+
+                function dragged(event) {
+                    event.subject.fx = event.x;
+                    event.subject.fy = event.y;
+                }
+
+                function dragended(event) {
+                    if (!event.active) simulation.alphaTarget(0);
+                    event.subject.fx = null;
+                    event.subject.fy = null;
+                }
+
+                return d3.drag()
+                    .on('start', dragstarted)
+                    .on('drag', dragged)
+                    .on('end', dragended);
             }
-            
-            if (connectedTo.length > 0) {
-                html += `
-                    <div class="connections-list" style="margin-top: 20px;">
-                        <strong style="color: #1f2937; font-size: 14px;">Also appears as companion for:</strong>
-                        ${connectedTo.map(c => {
-                            const companionNode = nodes.get(c);
-                            const cGroupName = groupNames[companionNode.group] || 'Other';
-                            const cGroupColor = groupColors[companionNode.group] || '#6b7280';
-                            return `
-                                <div class="connection-item" onclick="highlightPlant('${c}')">
-                                    <div class="connection-name">${c}</div>
-                                    <div class="connection-meta">
-                                        <span class="ecological-group" style="background: ${cGroupColor}22; color: ${cGroupColor}; font-size: 10px;">${cGroupName}</span>
-                                    </div>
-                                </div>
-                            `;
-                        }).join('')}
-                    </div>
-                `;
-            }
-            
-            sidebar.innerHTML = html;
         }
-
-        window.highlightPlant = function(plantId) {
-            const plantNode = nodes.get(plantId);
-            if (plantNode) {
-                showPlantDetails(plantNode);
-                
-                node.classed('highlighted', false);
-                link.classed('highlighted', false);
-                
-                node.filter(n => n.id === plantId).classed('highlighted', true);
-                
-                link.each(function(l) {
-                    const sourceId = typeof l.source === 'object' ? l.source.id : l.source;
-                    const targetId = typeof l.target === 'object' ? l.target.id : l.target;
-                    
-                    if (sourceId === plantId || targetId === plantId) {
-                        d3.select(this).classed('highlighted', true);
-                        node.filter(n => n.id === sourceId || n.id === targetId)
-                            .classed('highlighted', true);
-                    }
-                });
-            }
-        };
-
-        // Filter buttons
-        document.querySelectorAll('.filter-btn').forEach(btn => {
-            btn.addEventListener('click', function() {
-                document.querySelectorAll('.filter-btn').forEach(b => b.classList.remove('active'));
-                this.classList.add('active');
-                
-                currentFilter = this.dataset.group;
-                updateStats();
-                initGraph();
-                
-                const sidebar = document.getElementById('sidebar');
-                sidebar.classList.add('empty');
-                sidebar.innerHTML = '<p>Click a plant node to view its companions and ecological relationships</p>';
-            });
-        });
-
-        function drag(simulation) {
-            function dragstarted(event) {
-                if (!event.active) simulation.alphaTarget(0.3).restart();
-                event.subject.fx = event.subject.x;
-                event.subject.fy = event.subject.y;
-            }
-
-            function dragged(event) {
-                event.subject.fx = event.x;
-                event.subject.fy = event.y;
-            }
-
-            function dragended(event) {
-                if (!event.active) simulation.alphaTarget(0);
-                event.subject.fx = null;
-                event.subject.fy = null;
-            }
-
-            return d3.drag()
-                .on('start', dragstarted)
-                .on('drag', dragged)
-                .on('end', dragended);
-        }
-
-        initGraph();
     </script>
 </body>
 </html>
