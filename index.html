@@ -396,7 +396,6 @@
         <div class="timeline" id="timeline" style="display: none;">
             <h3>Bloom Timeline for Selected Plants</h3>
             <div class="timeline-months">
-                <div class="timeline-month">Mar</div>
                 <div class="timeline-month">Apr</div>
                 <div class="timeline-month">May</div>
                 <div class="timeline-month">Jun</div>
@@ -877,27 +876,27 @@ Viola canadensis,Polystichum acrostichoides,Thalictrum dioicum,Aquilegia canaden
 
             function updateTimeline(plants) {
                 const bloomMonths = {
-                    'early-spring': [0, 1],      // Mar-Apr
-                    'late-spring': [1, 3],       // Apr-May
-                    'early-summer': [3, 4],      // Jun-Jul
-                    'mid-summer': [4, 5],        // Jul-Aug
-                    'late-summer': [5, 6],       // Aug-Sep
-                    'fall': [6, 7]               // Sep-Oct
+                    'early-spring': [0, 1],      // Apr-May
+                    'late-spring': [1, 2],       // May-Jun
+                    'early-summer': [2, 3],      // Jun-Jul
+                    'mid-summer': [3, 4],        // Jul-Aug
+                    'late-summer': [4, 5],       // Aug-Sep
+                    'fall': [5, 6]               // Sep-Oct
                 };
 
                 const plantsWithBloom = plants.filter(p => p && p.bloomTime).slice(0, 15);
-                
+
                 if (plantsWithBloom.length === 0) {
                     document.getElementById('timeline').style.display = 'none';
                     return;
                 }
 
                 document.getElementById('timeline').style.display = 'block';
-                
+
                 const html = plantsWithBloom.map(p => {
                     const months = bloomMonths[p.bloomTime] || [0, 0];
-                    const startPct = (months[0] / 8) * 100;
-                    const widthPct = ((months[1] - months[0]) / 8) * 100;
+                    const startPct = (months[0] / 7) * 100;
+                    const widthPct = ((months[1] - months[0]) / 7) * 100;
                     
                     return `
                         <div class="timeline-bar" style="background: linear-gradient(90deg, transparent ${startPct}%, ${p.bloomColor} ${startPct}%, ${p.bloomColor} ${startPct + widthPct}%, transparent ${startPct + widthPct}%);">
